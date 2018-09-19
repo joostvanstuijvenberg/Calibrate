@@ -1,6 +1,7 @@
 /*
 * Joost van Stuijvenberg
 * Avans Hogeschool Breda
+* September 2018
 *
 * CC BY-SA 4.0, see:      https://creativecommons.org/licenses/by-sa/4.0/
 * sources & updates:      https://github.com/joostvanstuijvenberg/OpenCV
@@ -48,12 +49,10 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "Windows.h"
-
 #define CALIBRATE_VERSION			"1.0.0"
 
 #define DEFAULT_CAMERA				"0"
-#define DEFAULT_CALIBRATION_FILE	"C:\\Temp\\CalibrationData.yml"
+#define DEFAULT_CALIBRATION_FILE	"../CalibrationData.yml"
 
 #define PATTERN_NUMBER_OF_BOARDS	10
 #define PATTERN_CORNERS_HOR			9
@@ -104,33 +103,21 @@ int main(int argc, char** argv)
     std::cout << "Calibration file . . : " + calibrationFile << std::endl;
     std::cout << "------------------------------------------------------------------" << std::endl;
 
-    // We need to display a maximum of two displays, distributed across the width of the screen.
-    cv::Size size = cv::Size((int)capture.get(CV_CAP_PROP_FRAME_WIDTH),
-                             (int)capture.get(CV_CAP_PROP_FRAME_HEIGHT));
-    int x1 = (GetSystemMetrics(SM_CXSCREEN) / 2) - size.width - 10;
-    int y1 = (GetSystemMetrics(SM_CYSCREEN) / 2) - (size.height / 2);
-    int x2 = (GetSystemMetrics(SM_CXSCREEN) / 2) + 10;
-    int y2 = (GetSystemMetrics(SM_CYSCREEN) / 2) - (size.height / 2);
-
+    cv::namedWindow(WINDOW_LEFT_TITLE, CV_WINDOW_AUTOSIZE);
+    cv::namedWindow(WINDOW_RIGHT_TITLE, CV_WINDOW_AUTOSIZE);
     cv::Mat normal, calibrated, distCoeffs, intrinsic; // = cv::Mat(3, 3, CV_32FC1);
-    char c = 0;
+    int c = 0;
     while (c != 27)
     {
         capture >> normal;
         cv::imshow(WINDOW_LEFT_TITLE, normal);
-        cv::moveWindow(WINDOW_LEFT_TITLE, x1, y1);
+        cv::moveWindow(WINDOW_LEFT_TITLE, 50, 50);
 
-        // If calibration data is available, use it to undistort the image and show this in the
-        // right window. Otherwise, remove the window.
+        calibrated = normal.clone();
         if (!intrinsic.empty() && !distCoeffs.empty())
-        {
-            calibrated = normal.clone();
             cv::undistort(normal, calibrated, intrinsic, distCoeffs);
-            cv::imshow(WINDOW_RIGHT_TITLE, calibrated);
-            cv::moveWindow(WINDOW_RIGHT_TITLE, x2, y2);
-        }
-        else
-            cv::destroyWindow(WINDOW_RIGHT_TITLE);
+        cv::imshow(WINDOW_RIGHT_TITLE, calibrated);
+        cv::moveWindow(WINDOW_RIGHT_TITLE, 750, 50);
 
         // With a delay of 40 msec, our theoretical framerate is 25 fps.
         c = cv::waitKey(40);
@@ -167,6 +154,8 @@ int main(int argc, char** argv)
                 distCoeffs.data = nullptr;
                 std::cout << "Calibration data has been reset." << std::endl;
                 break;
+            default:
+                break;
         }
     }
 
@@ -193,7 +182,7 @@ void performCalibration(cv::VideoCapture& capture, cv::Mat& intrinsic, cv::Mat& 
     std::vector<cv::Mat> rvecs, tvecs;
 
     for (int j = 0; j < PATTERN_CORNERS_HOR * PATTERN_CORNERS_VER; j++)
-        obj.push_back(cv::Point3f(j / PATTERN_CORNERS_HOR, j % PATTERN_CORNERS_HOR, 0.0f));
+        obj.emplace_back(cv::Point3f(j / PATTERN_CORNERS_HOR, j % PATTERN_CORNERS_HOR, 0.0f));
     int successes = 0;
     while (successes < PATTERN_NUMBER_OF_BOARDS)
     {
@@ -207,7 +196,7 @@ void performCalibration(cv::VideoCapture& capture, cv::Mat& intrinsic, cv::Mat& 
         }
         cv::imshow(WINDOW_LEFT_TITLE, image);
         cv::imshow(WINDOW_RIGHT_TITLE, gray);
-        char key = cv::waitKey(40);
+        int key = cv::waitKey(40);
         if (key == ' ' && found)
         {
             image_points.push_back(corners);

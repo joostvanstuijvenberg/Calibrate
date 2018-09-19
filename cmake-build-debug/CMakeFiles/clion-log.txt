@@ -1,16 +1,4 @@
-"C:\Program Files\JetBrains\CLion 2018.2.4\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" C:\Users\Joost\CLionProjects\Calibrate
+/home/joost/IDE/clion-2018.2.1/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/joost/Projects/OpenCV/Calibrate
 -- Configuring done
-CMake Error at CMakeLists.txt:6 (add_executable):
-  Cannot find source file:
-
-    main.cpp
-
-  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .m .M .mm .h .hh .h++ .hm
-  .hpp .hxx .in .txx
-
-
-CMake Error at CMakeLists.txt:6 (add_executable):
-  No SOURCES given to target: Calibrate
-
-
--- Build files have been written to: C:/Users/Joost/CLionProjects/Calibrate/cmake-build-debug
+-- Generating done
+-- Build files have been written to: /home/joost/Projects/OpenCV/Calibrate/cmake-build-debug

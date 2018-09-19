@@ -3,4 +3,8 @@ project(Calibrate)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Calibrate main.cpp Calibrate.cpp)
+find_package(OpenCV REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
+
+add_executable(Calibrate Calibrate.cpp)
+target_link_libraries (Calibrate ${OpenCV_LIBS})
